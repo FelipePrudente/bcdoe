@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Case - Retomada da Impressão do DOE/SP</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --accent: #22c55e;
+      --accent-2: #60a5fa;
+      --danger: #ef4444;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b1022, #0f172a);
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b1224;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .btn:hover { background: #0d1530; border-color: #26334d; }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { background: linear-gradient(180deg, #0ea5e9, #2563eb); border-color: #1e40af; }
+    .btn.primary:hover { background: linear-gradient(180deg, #38bdf8, #3b82f6); }
+    .btn.success { background: linear-gradient(180deg, #16a34a, #059669); border-color: #065f46; }
+    .btn.success:hover { background: linear-gradient(180deg, #22c55e, #10b981); }
+    .btn.danger { background: linear-gradient(180deg, #ef4444, #b91c1c); border-color: #7f1d1d; }
+    .btn.ghost { background: transparent; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.8), rgba(11, 18, 36, 0.8));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #c7d2fe;
+      letter-spacing: 0.2px;
+    }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b1224;
+      color: var(--text);
+      outline: none;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 680px) { .row { grid-template-columns: 1fr; } }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* Apresentação */
+    .presentacao {
+      display: none;
+    }
+    /* Linha do tempo (Fases do Projeto) */
+    .timeline-card .hint { margin-top: 2px; }
+    .timeline {
+      margin-top: 10px;
+    }
+    .timeline-row {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      align-items: center;
+      gap: 0;
+      padding: 18px 0 8px;
+    }
+    .timeline-connector {
+      height: 3px;
+      background: #175a6f;
+      opacity: 0.9;
+      width: 100%;
+      align-self: center;
+      justify-self: stretch;
+    }
+    .timeline-node {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      border: 4px solid #0b3b49;
+      background: #155e75;
+      margin: 0 auto;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4) inset;
+      justify-self: center;
+    }
+    .timeline-node.is-start {
+      background: transparent;
+      border-color: #082a36;
+    }
+    .timeline-node.is-end {
+      background: #94d23d;
+      border-color: #5a8f1f;
+    }
+    .timeline-node.completed { background: var(--accent); border-color: #15803d; }
+    .timeline-node.current { background: var(--accent-2); border-color: #1e40af; }
+    .timeline-connector.completed { background: var(--accent); opacity: 1; }
+    .timeline-labels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .timeline-labels div { text-align: center; }
+    .grid .timeline-card { grid-column: 1 / -1; }
+    .presentacao.active { display: block; }
+    .slides {
+      position: relative;
+      width: 100%;
+      min-height: 70vh;
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(37, 99, 235, 0.15), transparent),
+                  radial-gradient(1000px 600px at 110% 110%, rgba(16, 185, 129, 0.12), transparent),
+                  #0b1224;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+      padding: 24px;
+    }
+    .slide {
+      display: none;
+      height: 100%;
+    }
+    .slide.active { display: block; }
+    .slide h1 { font-size: 40px; margin: 0 0 12px; }
+    .slide h3 { font-size: 18px; color: var(--muted); font-weight: 500; margin: 0 0 18px; }
+    .bullets { margin: 0; padding-left: 22px; font-size: 18px; line-height: 1.6; }
+    /* Suporte a listas aninhadas para melhor visibilidade de escopo */
+    .bullets li { margin: 4px 0; }
+    .bullets ul { margin-top: 6px; padding-left: 22px; }
+    /* Notas (fonte reduzida) */
+    .content .note { font-size: 12px; color: var(--muted); font-style: italic; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .kpi { background: #0f1a33; border: 1px solid #1e2a47; border-radius: 12px; padding: 14px; text-align: center; }
+    .kpi .v { font-size: 28px; font-weight: 700; }
+    .nav-floater {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      gap: 8px;
+      opacity: 0.9;
+    }
+    .slide-indicator { font-size: 12px; color: var(--muted); margin-left: 8px; }
+
+    /* Impressão: usar fundo branco */
+    @media print {
+      body { background: #fff; color: #111; }
+      header, .editor, .toolbar-right .btn:not(.primary) { display: none !important; }
+      .presentacao { display: block !important; }
+      .slides { background: #fff; border: none; box-shadow: none; }
+      .slide { display: block; page-break-after: always; }
+      .slide h1 { color: #111; }
+      .bullets { color: #111; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container toolbar">
+      <div class="toolbar-left">
+        <strong>Business Case</strong>
+        <span class="hint">Retomada da impressão do DOE/SP</span>
+      </div>
+      <div class="toolbar-right">
+        <button id="btnEditar" class="btn">Editar</button>
+        <button id="btnApresentar" class="btn primary">Apresentar</button>
+        <button id="btnSalvar" class="btn success">Salvar</button>
+        <button id="btnImprimir" class="btn">Imprimir</button>
+        <button id="btnExportar" class="btn">Exportar JSON</button>
+        <label class="btn ghost" for="inputImportar">Importar JSON</label>
+        <input id="inputImportar" type="file" accept="application/json" hidden>
+        <button id="btnLimpar" class="btn danger">Limpar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Editor -->
+    <section id="editor" class="editor">
+      <div class="grid">
+        <div class="card">
+          <h2>Identificação</h2>
+          <label for="titulo">Título</label>
+          <input id="titulo" type="text" data-field="titulo" placeholder="Ex.: Retomada da Impressão do Diário Oficial do Estado de São Paulo">
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="autor">Responsável/Autor</label>
+              <input id="autor" type="text" data-field="autor" placeholder="Nome da área e responsável">
+            </div>
+            <div>
+              <label for="data">Data</label>
+              <input id="data" type="text" data-field="data" placeholder="AAAA-MM-DD">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Resumo Executivo</h2>
+          <label for="resumo">Resumo</label>
+          <textarea id="resumo" data-field="resumo" placeholder="Síntese do problema, solução proposta e benefícios."></textarea>
+          <div class="hint">Use linhas separadas para bullets no slide.</div>
+        </div>
+
+        <div class="card">
+          <h2>Contexto e Oportunidade</h2>
+          <label for="contexto">Contexto</label>
+          <textarea id="contexto" data-field="contexto" placeholder="Situação atual (DOE digital), demanda por versão impressa, aspectos legais/operacionais."></textarea>
+          <label for="problema" style="margin-top:12px;">Oportunidade</label>
+          <textarea id="problema" data-field="problema" placeholder="Ganhos potenciais, novas receitas/alcance, melhoria de serviço, adequação a requisitos, etc."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Objetivos e Escopo</h2>
+          <label for="objetivos">Objetivos</label>
+          <textarea id="objetivos" data-field="objetivos" placeholder="Objetivos SMART da retomada de impressão."></textarea>
+          <label for="escopo" style="margin-top:12px;">Escopo</label>
+          <textarea id="escopo" data-field="escopo" placeholder="O que está incluído e excluído."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Benefícios</h2>
+          <div class="row">
+            <div>
+              <label for="beneficiosQuali">Qualitativos</label>
+              <textarea id="beneficiosQuali" data-field="beneficiosQuali" placeholder="Acessibilidade, conformidade, imagem institucional, etc."></textarea>
+            </div>
+            <div>
+              <label for="beneficiosQuanti">Quantitativos</label>
+              <textarea id="beneficiosQuanti" data-field="beneficiosQuanti" placeholder="Economias/receitas estimadas, alcance, métricas."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Custos e Orçamento</h2>
+          <div class="row">
+            <div style="grid-column: 1 / -1;">
+              <label for="capex">CAPEX (R$)</label>
+              <textarea id="capex" data-field="capex" placeholder="Equipamentos, ajustes de infraestrutura, etc."></textarea>
+            </div>
+          </div>
+          <div>
+            <label>OPEX (R$)</label>
+            <div class="row" style="margin-top:6px;">
+              <div style="grid-column: 1 / -1;">
+                <label for="opexDescricao">Descrição</label>
+                <textarea id="opexDescricao" data-field="opexDescricao" placeholder="Resumo do OPEX: escopo, premissas, observações."></textarea>
+              </div>
+            </div>
+            <div class="row" style="margin-top:6px;">
+              <div>
+                <label for="opexProfissionais">Profissionais</label>
+                <textarea id="opexProfissionais" data-field="opexProfissionais" placeholder="Custos com pessoal/terceiros."></textarea>
+              </div>
+              <div>
+                <label for="opexImpressao">Impressão</label>
+                <textarea id="opexImpressao" data-field="opexImpressao" placeholder="Papel, tinta, gráfica."></textarea>
+              </div>
+            </div>
+            <div class="row" style="margin-top:6px;">
+              <div style="grid-column: 1 / -1;">
+                <label for="opexDistribuicao">Distribuição</label>
+                <textarea id="opexDistribuicao" data-field="opexDistribuicao" placeholder="Logística de entrega, transporte."></textarea>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="card">
+          <h2>Riscos e Mitigações</h2>
+          <label for="riscos">Fatores Críticos de Sucesso</label>
+          <textarea id="riscos" data-field="riscos" placeholder="Fornecimento, custos, demanda, obsolescência, questões ambientais."></textarea>
+          <label for="mitigacoes" style="margin-top:12px;">Mitigações</label>
+          <textarea id="mitigacoes" data-field="mitigacoes" placeholder="Planos de contingência, contratos, SLAs, escalabilidade."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Stakeholders e Governança</h2>
+          <label for="stakeholders">Stakeholders</label>
+          <textarea id="stakeholders" data-field="stakeholders" placeholder="Órgãos, secretarias, fornecedores, usuários, cidadãos."></textarea>
+          <label for="governanca" style="margin-top:12px;">Governança</label>
+          <textarea id="governanca" data-field="governanca" placeholder="Comitês, papéis e responsabilidades."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Cronograma e Marcos</h2>
+          <label for="cronograma">Cronograma</label>
+          <textarea id="cronograma" data-field="cronograma" placeholder="Fases, marcos, datas-chave."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Métricas de Sucesso</h2>
+          <label for="metricas">Métricas</label>
+          <textarea id="metricas" data-field="metricas" placeholder="KPIs e metas."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Retorno Financeiro (Previsão)</h2>
+          <div class="row">
+            <div>
+              <label for="roi">ROI (%)</label>
+              <input id="roi" type="number" data-field="roi" placeholder="Ex: 25.5" step="0.1">
+            </div>
+            <div>
+              <label for="payback">Payback (meses)</label>
+              <input id="payback" type="number" data-field="payback" placeholder="Ex: 18" step="0.1">
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="investimentoInicial">Investimento Inicial (R$)</label>
+              <input id="investimentoInicial" type="number" data-field="investimentoInicial" placeholder="Ex: 500000" step="1000">
+            </div>
+            <div>
+              <label for="retornoAnual">Retorno Anual (R$)</label>
+              <input id="retornoAnual" type="number" data-field="retornoAnual" placeholder="Ex: 150000" step="1000">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Alternativas e Análise</h2>
+          <label for="alternativas">Alternativas consideradas</label>
+          <textarea id="alternativas" data-field="alternativas" placeholder="Manter digital, impressão sob demanda, parcerias, etc."></textarea>
+          <label for="analise" style="margin-top:12px;">Análise comparativa</label>
+          <textarea id="analise" data-field="analise" placeholder="Custos/benefícios de cada alternativa."></textarea>
+        </div>
+
+        <div class="card">
+          <h2>Recomendação e Plano</h2>
+          <label for="recomendacao">Decisão Recomendada</label>
+          <textarea id="recomendacao" data-field="recomendacao" placeholder="Opção escolhida e racional."></textarea>
+          <label for="plano" style="margin-top:12px;">Plano de Implementação</label>
+          <textarea id="plano" data-field="plano" placeholder="Etapas, responsáveis, prazos."></textarea>
+        </div>
+
+        <div class="card timeline-card">
+          <h2>Fases do Projeto</h2>
+          <label for="fasesText">Fases (uma por linha)</label>
+          <textarea id="fasesText" data-field="fasesText" placeholder="Ex.:\nInício | 01/10/2025\n[x] Planejamento | 15/10/2025\n[>] Execução\nValidação\nConclusão"></textarea>
+          <div class="hint">Use prefixos opcionais: [x] concluída, [>] atual, vazio futura. Opcionalmente, adicione data após "|".</div>
+
+          <div class="timeline" id="timelineEditor">
+            <div class="timeline-row" id="timelineNodes"></div>
+            <div class="timeline-labels" id="timelineLabels"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Diário Oficial em Números</h2>
+          <div class="row">
+            <div>
+              <label for="totalClientes">Total de Clientes</label>
+              <input id="totalClientes" type="number" data-field="totalClientes" placeholder="Ex: 500" step="1">
+            </div>
+            <div>
+              <label for="qtdTotalPedidos">Quantidade Total de Pedidos</label>
+              <input id="qtdTotalPedidos" type="number" data-field="qtdTotalPedidos" placeholder="Ex: 1200" step="1">
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="faturamentoTotal">Faturamento Total (R$)</label>
+              <input id="faturamentoTotal" type="number" data-field="faturamentoTotal" placeholder="Ex: 500000" step="1000">
+            </div>
+            <div>
+              <label for="dadosReferente">Dados referente</label>
+              <input id="dadosReferente" type="text" data-field="dadosReferente" placeholder="Ex: Agosto/2025">
+            </div>
+          </div>
+          
+          <div style="margin-top:16px; padding:12px; background:rgba(15,24,39,0.5); border-radius:8px;">
+            <h3 style="margin:0 0 12px; font-size:14px; color:var(--accent);">Caderno Empresarial</h3>
+            <div class="row">
+              <div>
+                <label for="qtdPedidosEmpresarial">Qtd Pedidos</label>
+                <input id="qtdPedidosEmpresarial" type="number" data-field="qtdPedidosEmpresarial" placeholder="Ex: 400" step="1">
+              </div>
+              <div>
+                <label for="faturamentoEmpresarial">Faturamento (R$)</label>
+                <input id="faturamentoEmpresarial" type="number" data-field="faturamentoEmpresarial" placeholder="Ex: 200000" step="1000">
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div>
+                <label for="mediaCmEmpresarial">Média (cm)</label>
+                <input id="mediaCmEmpresarial" type="number" data-field="mediaCmEmpresarial" placeholder="Ex: 20" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px; padding:12px; background:rgba(15,24,39,0.5); border-radius:8px;">
+            <h3 style="margin:0 0 12px; font-size:14px; color:var(--accent-2);">Caderno Executivo</h3>
+            <div class="row">
+              <div>
+                <label for="qtdPedidosExecutivo">Qtd Pedidos</label>
+                <input id="qtdPedidosExecutivo" type="number" data-field="qtdPedidosExecutivo" placeholder="Ex: 300" step="1">
+              </div>
+              <div>
+                <label for="faturamentoExecutivo">Faturamento (R$)</label>
+                <input id="faturamentoExecutivo" type="number" data-field="faturamentoExecutivo" placeholder="Ex: 150000" step="1000">
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div>
+                <label for="mediaCmExecutivo">Média (cm)</label>
+                <input id="mediaCmExecutivo" type="number" data-field="mediaCmExecutivo" placeholder="Ex: 15" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px; padding:12px; background:rgba(15,24,39,0.5); border-radius:8px;">
+            <h3 style="margin:0 0 12px; font-size:14px; color:var(--accent);">Caderno Municípios</h3>
+            <div class="row">
+              <div>
+                <label for="qtdPedidosMunicipios">Qtd Pedidos</label>
+                <input id="qtdPedidosMunicipios" type="number" data-field="qtdPedidosMunicipios" placeholder="Ex: 500" step="1">
+              </div>
+              <div>
+                <label for="faturamentoMunicipios">Faturamento (R$)</label>
+                <input id="faturamentoMunicipios" type="number" data-field="faturamentoMunicipios" placeholder="Ex: 150000" step="1000">
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div>
+                <label for="mediaCmMunicipios">Média (cm)</label>
+                <input id="mediaCmMunicipios" type="number" data-field="mediaCmMunicipios" placeholder="Ex: 25" step="0.1">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Apresentação -->
+    <section id="presentacao" class="presentacao">
+      <div class="slides" id="slides"></div>
+      <div class="slide-indicator" id="slideIndicator"></div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'business-case-doe-sp';
+
+    const fields = [
+      'titulo','autor','data','resumo','contexto','problema','objetivos','escopo','beneficiosQuali','beneficiosQuanti','capex','opexDescricao','opexProfissionais','opexImpressao','opexDistribuicao','riscos','mitigacoes','stakeholders','governanca','cronograma','metricas','roi','payback','investimentoInicial','retornoAnual','totalClientes','qtdTotalPedidos','faturamentoTotal','dadosReferente','qtdPedidosEmpresarial','faturamentoEmpresarial','mediaCmEmpresarial','qtdPedidosExecutivo','faturamentoExecutivo','mediaCmExecutivo','qtdPedidosMunicipios','faturamentoMunicipios','mediaCmMunicipios','alternativas','analise','recomendacao','plano','fasesText'
+    ];
+
+    function defaultData() {
+      return {
+        titulo: 'Retomada da Impressão do Diário Oficial do Estado de São Paulo',
+        autor: '',
+        data: new Date().toISOString().slice(0,10),
+        resumo: '',
+        contexto: '',
+        problema: '',
+        objetivos: '',
+        escopo: '',
+        beneficiosQuali: '',
+        beneficiosQuanti: '',
+        capex: '',
+        opexDescricao: '',
+        opexProfissionais: '',
+        opexImpressao: '',
+        opexDistribuicao: '',
+        
+        riscos: '',
+        mitigacoes: '',
+        stakeholders: '',
+        governanca: '',
+        cronograma: '',
+        metricas: '',
+        roi: '',
+        payback: '',
+        investimentoInicial: '',
+        retornoAnual: '',
+        totalClientes: '',
+        qtdTotalPedidos: '',
+        faturamentoTotal: '',
+        dadosReferente: '',
+        qtdPedidosEmpresarial: '',
+        faturamentoEmpresarial: '',
+        mediaCmEmpresarial: '',
+        qtdPedidosExecutivo: '',
+        faturamentoExecutivo: '',
+        mediaCmExecutivo: '',
+        qtdPedidosMunicipios: '',
+        faturamentoMunicipios: '',
+        mediaCmMunicipios: '',
+        alternativas: '',
+        analise: '',
+        recomendacao: '',
+        plano: '',
+        fasesText: 'Início\nPlanejamento\nExecução\nValidação\nConclusão'
+      };
+    }
+
+    function readData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultData();
+        const parsed = JSON.parse(raw);
+        return { ...defaultData(), ...parsed };
+      } catch (e) {
+        console.error('Erro lendo localStorage', e);
+        return defaultData();
+      }
+    }
+
+    function writeData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        alert('Não foi possível salvar no navegador. Verifique espaço/permite cookies.');
+        console.error(e);
+      }
+    }
+
+    function getDataFromForm() {
+      const data = readData();
+      for (const field of fields) {
+        const el = document.querySelector(`[data-field="${field}"]`);
+        if (!el) continue;
+        data[field] = el.value;
+      }
+      return data;
+    }
+
+    function setFormFromData(data) {
+      for (const field of fields) {
+        const el = document.querySelector(`[data-field="${field}"]`);
+        if (!el) continue;
+        el.value = data[field] ?? '';
+      }
+    }
+
+    function asBullets(text) {
+      return (text || '')
+        .split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .filter(s => {
+          // Filtrar linhas que são apenas notas de rodapé (contêm ^^ mas não são tópicos)
+          const isOnlyFootnote = s.match(/^\s*\^\^.*\^\^\s*$/);
+          return !isOnlyFootnote;
+        });
+    }
+
+    // Constrói HTML de lista aninhada a partir de linhas com identação
+    // Suporta marcadores -, *, • (opcionais) e recuos por espaços ou tabs
+    function listHtml(text) {
+      const rawLines = (text || '').split(/\r?\n/);
+      const items = rawLines
+        .map(line => {
+          if (!line || /^\s*$/.test(line)) return null;
+          
+          // Verificar se é apenas uma nota de rodapé
+          const trimmed = line.trim();
+          const isOnlyFootnote = trimmed.match(/^\s*\^\^.*\^\^\s*$/);
+          if (isOnlyFootnote) {
+            return { level: -1, text: trimmed, isFootnote: true };
+          }
+          
+          const wsMatch = line.match(/^(\s*)/);
+          const indent = wsMatch ? wsMatch[1] : '';
+          let rest = line.slice(indent.length);
+          // Contar níveis por '>' consecutivos após o espaço inicial
+          const gtMatch = rest.match(/^(>+)/);
+          const gtCount = gtMatch ? gtMatch[1].length : 0;
+          if (gtCount) rest = rest.slice(gtCount);
+          // remover espaços e marcador opcional
+          rest = rest.replace(/^\s*([-*•])?\s*/, '');
+          const content = rest;
+          // Nível: tabs = 1, espaços a cada 2
+          const tabs = (indent.match(/\t/g) || []).length;
+          const spaces = (indent.match(/ /g) || []).length;
+          const level = tabs + Math.floor(spaces / 2) + gtCount;
+          const textContent = (content || '').trim();
+          if (!textContent) return null;
+          return { level, text: textContent };
+        })
+        .filter(Boolean);
+
+      if (items.length === 0) return '';
+
+      // Construir árvore mantendo irmãos corretamente
+      const root = { text: '', children: [] };
+      const parents = [root]; // índice = nível atual; root está em -1 (length-1)
+      for (const it of items) {
+        // Ajusta pilha para o nível do item
+        while (parents.length - 1 > it.level) parents.pop();
+        while (parents.length - 1 < it.level) {
+        // Se houver salto de nível, cria placeholder apenas para encadear
+        const placeholder = { text: '', children: [] };
+        if (parents.length > 0) {
+          parents[parents.length - 1].children.push(placeholder);
+          parents.push(placeholder);
+        }
+        }
+        const parent = parents[parents.length - 1];
+        if (!parent) continue; // Pular se não há parent válido
+        const node = { text: it.text, children: [] };
+        parent.children.push(node);
+        parents.push(node);
+      }
+
+      // Render recursivo (ignora placeholders sem texto)
+      function renderNodes(nodes) {
+        if (!nodes || !nodes.length) return '';
+        let listItems = '';
+        let footnotes = '';
+        for (const n of nodes) {
+          if (n.isFootnote) {
+            // Notas de rodapé são coletadas separadamente
+            const formatted = applyInlineFormatting(escapeHtml(n.text));
+            footnotes += `<div class="note">${formatted}</div>`;
+          } else {
+            const hasChildren = n.children && n.children.length;
+            const childrenHtml = renderNodes(n.children);
+            if (n.text) {
+              const formatted = applyInlineFormatting(escapeHtml(n.text));
+              listItems += `<li>${formatted}${childrenHtml ? childrenHtml : ''}</li>`;
+            } else {
+              // nó placeholder: não cria <li>, apenas propaga filhos
+              listItems += childrenHtml;
+            }
+          }
+        }
+        const listHtml = listItems ? `<ul class="bullets">${listItems}</ul>` : '';
+        return listHtml + footnotes;
+      }
+
+      return renderNodes(root.children);
+    }
+
+    function kpiValueOrDash(v) {
+      const t = (v || '').toString().trim();
+      return t.length ? t : '—';
+    }
+
+    function renderSlides(data) {
+      const slidesHost = document.getElementById('slides');
+      const slideIndicator = document.getElementById('slideIndicator');
+      slidesHost.innerHTML = '';
+
+      const slides = [];
+
+      slides.push({
+        title: data.titulo || 'Business Case',
+        subtitle: `${data.autor ? data.autor + ' • ' : ''}${data.data || ''}`,
+        body: ''
+      });
+
+      const blocks = [
+        { title: 'Resumo Executivo', text: data.resumo },
+        { title: 'Contexto', text: data.contexto },
+        { title: 'Oportunidade', text: data.problema },
+        { title: 'Objetivos', text: data.objetivos },
+        { title: 'Escopo', text: data.escopo },
+        { title: 'Benefícios Qualitativos', text: data.beneficiosQuali },
+        { title: 'Benefícios Quantitativos', text: data.beneficiosQuanti },
+        { title: 'CAPEX', text: data.capex },
+        
+        { title: 'Riscos', text: data.riscos },
+        { title: 'Mitigações', text: data.mitigacoes },
+        { title: 'Stakeholders', text: data.stakeholders },
+        { title: 'Governança', text: data.governanca },
+        { title: 'Cronograma', text: data.cronograma },
+        { title: 'Métricas de Sucesso', text: data.metricas },
+        { title: 'Alternativas', text: data.alternativas },
+        { title: 'Análise Comparativa', text: data.analise },
+        { title: 'Recomendação', text: data.recomendacao },
+        { title: 'Plano de Implementação', text: data.plano },
+      ];
+
+      // Função para montar o slide único de OPEX
+      function buildOpexSlide() {
+        const opexDescBullets = asBullets(data.opexDescricao);
+        const opexProfBullets = asBullets(data.opexProfissionais);
+        // Impressão: permitir divisão em 2 colunas usando uma linha separadora de traços
+        const imprLines = (data.opexImpressao || '').split(/\r?\n/);
+        const imprSepIdx = imprLines.findIndex(l => /^\s*-{5,}\s*$/.test(l));
+        const imprLeftText = imprSepIdx >= 0 ? imprLines.slice(0, imprSepIdx).join('\n') : (data.opexImpressao || '');
+        const imprRightText = imprSepIdx >= 0 ? imprLines.slice(imprSepIdx + 1).join('\n') : '';
+        const opexImprLeftBullets = asBullets(imprLeftText);
+        const opexImprRightBullets = asBullets(imprRightText);
+        const opexDistBullets = asBullets(data.opexDistribuicao);
+        const hasAnyOpex = opexDescBullets.length || opexProfBullets.length || opexImprLeftBullets.length || opexImprRightBullets.length || opexDistBullets.length;
+        if (!hasAnyOpex) return null;
+        return {
+          title: 'OPEX',
+          subtitle: '',
+          body: () => `
+            ${opexDescBullets.length ? `<div style="margin-bottom:12px;"><strong>Descrição</strong>${listHtml(data.opexDescricao)}</div>` : ''}
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+              <div>${opexProfBullets.length ? `<strong>Profissionais</strong>${listHtml(data.opexProfissionais)}` : '<strong>Profissionais</strong><div class="hint">—</div>'}</div>
+              <div>${opexDistBullets.length ? `<strong>Distribuição</strong>${listHtml(data.opexDistribuicao)}` : '<strong>Distribuição</strong><div class="hint">—</div>'}</div>
+              <div style="grid-column: 1 / -1;">
+                <strong>Impressão</strong>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px;">
+                  <div>${opexImprLeftBullets.length ? `${listHtml(imprLeftText)}` : '<div class="hint">—</div>'}</div>
+                  <div>${opexImprRightBullets.length ? `${listHtml(imprRightText)}` : '<div class="hint">—</div>'}</div>
+                </div>
+              </div>
+            </div>
+          `
+        };
+      }
+
+      for (const b of blocks) {
+        const bullets = asBullets(b.text);
+        if (bullets.length === 0) continue;
+        slides.push({
+          title: b.title,
+          subtitle: '',
+          body: () => listHtml(b.text)
+        });
+        if (b.title === 'CAPEX') {
+          const opexSlide = buildOpexSlide();
+          if (opexSlide) slides.push(opexSlide);
+        }
+      }
+
+      // Slide único de OPEX (inserido logo após CAPEX)
+
+      // Slide DOE em Números (ROI e Payback)
+      if (data.roi || data.payback || data.investimentoInicial || data.retornoAnual) {
+        slides.push({
+          title: 'Retorno Financeiro (Previsão)',
+          subtitle: '',
+          body: () => `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px;">
+              <div>
+                <h3 style="margin: 0 0 16px; color: var(--accent); font-size: 20px;">ROI - Retorno sobre Investimento</h3>
+                <div style="text-align: center;">
+                  <canvas id="roiChart" width="300" height="200" style="max-width: 100%;"></canvas>
+                  <div style="font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 8px;">
+                    ${data.roi ? parseFloat(data.roi).toFixed(1) + '%' : '—'}
+                  </div>
+                  <div style="font-size: 12px; color: var(--muted);">Retorno sobre Investimento</div>
+                </div>
+              </div>
+              <div>
+                <h3 style="margin: 0 0 16px; color: var(--accent-2); font-size: 20px;">Payback</h3>
+                <div style="text-align: center;">
+                  <canvas id="paybackChart" width="300" height="200" style="max-width: 100%;"></canvas>
+                  <div style="font-size: 18px; font-weight: 600; color: var(--accent-2); margin-top: 8px;">
+                    ${data.payback ? parseFloat(data.payback).toFixed(1) + ' meses' : '—'}
+                  </div>
+                  <div style="font-size: 12px; color: var(--muted);">Tempo de Retorno</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 24px; padding: 16px; background: rgba(15, 24, 39, 0.5); border-radius: 8px; border: 1px solid var(--border);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px;">
+                <div>
+                  <strong>Investimento Inicial:</strong><br>
+                  <span style="color: var(--accent); font-size: 18px; font-weight: 600;">
+                    ${data.investimentoInicial ? 'R$ ' + parseFloat(data.investimentoInicial).toLocaleString('pt-BR') : '—'}
+                  </span>
+                </div>
+                <div>
+                  <strong>Retorno Anual:</strong><br>
+                  <span style="color: var(--accent-2); font-size: 18px; font-weight: 600;">
+                    ${data.retornoAnual ? 'R$ ' + parseFloat(data.retornoAnual).toLocaleString('pt-BR') : '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `
+        });
+      }
+
+      // Slide Diário Oficial em Números
+      if (data.totalClientes || data.qtdTotalPedidos || data.faturamentoTotal || data.qtdPedidosEmpresarial || data.faturamentoEmpresarial || data.qtdPedidosExecutivo || data.faturamentoExecutivo || data.qtdPedidosMunicipios || data.faturamentoMunicipios) {
+        const totalClientes = parseFloat(data.totalClientes) || 0;
+        const qtdTotalPedidos = parseFloat(data.qtdTotalPedidos) || 0;
+        const faturamentoTotal = parseFloat(data.faturamentoTotal) || 0;
+        const dadosReferente = data.dadosReferente || '';
+        
+        const qtdEmpresarial = parseFloat(data.qtdPedidosEmpresarial) || 0;
+        const fatEmpresarial = parseFloat(data.faturamentoEmpresarial) || 0;
+        const valorMedioEmpresarial = qtdEmpresarial > 0 ? (fatEmpresarial / qtdEmpresarial) : 0;
+        
+        const qtdExecutivo = parseFloat(data.qtdPedidosExecutivo) || 0;
+        const fatExecutivo = parseFloat(data.faturamentoExecutivo) || 0;
+        const valorMedioExecutivo = qtdExecutivo > 0 ? (fatExecutivo / qtdExecutivo) : 0;
+        
+        const qtdMunicipios = parseFloat(data.qtdPedidosMunicipios) || 0;
+        const fatMunicipios = parseFloat(data.faturamentoMunicipios) || 0;
+        const valorMedioMunicipios = qtdMunicipios > 0 ? (fatMunicipios / qtdMunicipios) : 0;
+
+        slides.push({
+          title: 'Diário Oficial em Números',
+          subtitle: '',
+          body: () => `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:12px;">
+              <div>
+                <canvas id="doeNumerosChart" width="550" height="400" style="max-width:100%;"></canvas>
+              </div>
+              <div style="font-size:14px;color:var(--muted);">
+                <div style="margin-bottom:16px; padding:12px; background:rgba(15,24,39,0.5); border-radius:8px;">
+                  <div><strong>Resumo Geral</strong></div>
+                  <div>• Total de Clientes: <strong>${totalClientes.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Total de Pedidos: <strong>${qtdTotalPedidos.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Faturamento Total: <strong>R$ ${faturamentoTotal.toLocaleString('pt-BR')}</strong></div>
+                </div>
+                
+                <div style="margin-bottom:12px; padding:12px; background:rgba(34,197,94,0.1); border:1px solid #22c55e; border-radius:8px;">
+                  <div><strong>Caderno Empresarial</strong></div>
+                  <div>• Pedidos: <strong>${qtdEmpresarial.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Faturamento: <strong>R$ ${fatEmpresarial.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Valor Médio: <strong>R$ ${valorMedioEmpresarial.toFixed(2)}</strong></div>
+                  <div>• Média: <strong>${(parseFloat(data.mediaCmEmpresarial) || 0).toFixed(1)} cm</strong></div>
+                </div>
+                
+                <div style="margin-bottom:12px; padding:12px; background:rgba(96,165,250,0.1); border:1px solid #60a5fa; border-radius:8px;">
+                  <div><strong>Caderno Executivo</strong></div>
+                  <div>• Pedidos: <strong>${qtdExecutivo.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Faturamento: <strong>R$ ${fatExecutivo.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Valor Médio: <strong>R$ ${valorMedioExecutivo.toFixed(2)}</strong></div>
+                  <div>• Média: <strong>${(parseFloat(data.mediaCmExecutivo) || 0).toFixed(1)} cm</strong></div>
+                </div>
+                
+                <div style="padding:12px; background:rgba(34,197,94,0.1); border:1px solid #22c55e; border-radius:8px;">
+                  <div><strong>Caderno Municípios</strong></div>
+                  <div>• Pedidos: <strong>${qtdMunicipios.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Faturamento: <strong>R$ ${fatMunicipios.toLocaleString('pt-BR')}</strong></div>
+                  <div>• Valor Médio: <strong>R$ ${valorMedioMunicipios.toFixed(2)}</strong></div>
+                  <div>• Média: <strong>${(parseFloat(data.mediaCmMunicipios) || 0).toFixed(1)} cm</strong></div>
+                </div>
+                
+                ${dadosReferente ? `
+                <div style="margin-top:16px; text-align:center;">
+                  <span class="note">Dados referente: ${dadosReferente}</span>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+          `
+        });
+      }
+
+      // Slide de Fases do Projeto (linha do tempo)
+      const parsed = parseFases(data.fasesText);
+      const num = Math.max(2, parsed.length);
+      slides.push({
+        title: 'Fases do Projeto',
+        subtitle: '',
+        body: () => `
+          <div class="timeline">
+            <div class="timeline-row" style="grid-template-columns: repeat(${num * 2 - 1}, 1fr);">
+              ${parsed.map((f,i)=>{
+                const connCls = i>0 && parsed[i-1].state!=='future' && (f.state==='completed' || f.state==='current') ? 'timeline-connector completed' : 'timeline-connector';
+                const nodeCls = `timeline-node ${i===0?'is-start':''} ${i===num-1?'is-end':''} ${f.state==='completed'?'completed':''} ${f.state==='current'?'current':''}`;
+                return `${i>0?`<div class="${connCls}"></div>`:''}<div class="${nodeCls}"></div>`;
+              }).join('')}
+            </div>
+            <div class="timeline-labels" style="grid-template-columns: repeat(${num}, 1fr);">
+              ${parsed.map(f=>`<div>${escapeHtml(f.label)}${f.date?`<div class="hint">${escapeHtml(f.date)}<\/div>`:''}</div>`).join('')}
+            </div>
+          </div>
+        `
+      });
+
+      let current = 0;
+
+      function renderCurrent() {
+        slidesHost.innerHTML = '';
+        slides.forEach((s, idx) => {
+          const div = document.createElement('div');
+          div.className = 'slide' + (idx === current ? ' active' : '');
+          const bodyHtml = typeof s.body === 'function' ? s.body() : s.body;
+          div.innerHTML = `
+            <h1>${escapeHtml(s.title)}</h1>
+            ${s.subtitle ? `<h3>${escapeHtml(s.subtitle)}</h3>` : ''}
+            <div class="content">${applyInlineFormatting(bodyHtml)}</div>
+            <div class="nav-floater">
+              <button class="btn" data-nav="prev">◀</button>
+              <button class="btn" data-nav="next">▶</button>
+            </div>
+          `;
+          slidesHost.appendChild(div);
+        });
+        slideIndicator.textContent = `Slide ${slides.length ? current + 1 : 0} / ${slides.length}`;
+      }
+
+      function next() { 
+        if (current < slides.length - 1) { 
+          current++; 
+          renderCurrent(); 
+          setTimeout(() => renderCharts(data), 100);
+        } 
+      }
+      function prev() { 
+        if (current > 0) { 
+          current--; 
+          renderCurrent(); 
+          setTimeout(() => renderCharts(data), 100);
+        } 
+      }
+
+      slidesHost.onclick = (e) => {
+        const t = e.target;
+        if (t && t.getAttribute && t.getAttribute('data-nav') === 'next') next();
+        if (t && t.getAttribute && t.getAttribute('data-nav') === 'prev') prev();
+      };
+
+      window.onkeydown = (e) => {
+        if (!document.getElementById('presentacao').classList.contains('active')) return;
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key.toLowerCase() === ' ') next();
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev();
+      };
+
+      renderCurrent();
+      
+      // Renderizar gráficos após o slide ser exibido
+      setTimeout(() => {
+        renderCharts(data);
+      }, 200);
+    }
+
+    function renderCharts(data) {
+      // Gráfico de ROI (gauge)
+      const roiCanvas = document.getElementById('roiChart');
+      if (roiCanvas && data.roi) {
+        const ctx = roiCanvas.getContext('2d');
+        const centerX = roiCanvas.width / 2;
+        const centerY = roiCanvas.height / 2;
+        const radius = 70;
+        
+        // Limpar canvas
+        ctx.clearRect(0, 0, roiCanvas.width, roiCanvas.height);
+        
+        // Arco de fundo
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, Math.PI * 0.8, Math.PI * 2.2);
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 16;
+        ctx.stroke();
+        
+        // Arco de valor
+        const roiValue = Math.min(parseFloat(data.roi) || 0, 100);
+        const angle = (roiValue / 100) * (Math.PI * 2.2 - Math.PI * 0.8) + Math.PI * 0.8;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, Math.PI * 0.8, angle);
+        ctx.strokeStyle = roiValue >= 20 ? '#22c55e' : roiValue >= 10 ? '#f59e0b' : '#ef4444';
+        ctx.lineWidth = 16;
+        ctx.stroke();
+        
+        // Texto do valor
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = 'bold 24px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(roiValue.toFixed(1) + '%', centerX, centerY + 8);
+      }
+      
+      // Gráfico de Payback (barras mensais de receita com destaque no mês do payback)
+      const paybackCanvas = document.getElementById('paybackChart');
+      if (paybackCanvas && data.payback) {
+        const ctx = paybackCanvas.getContext('2d');
+        const paybackValue = Math.max(0, parseFloat(data.payback) || 0);
+        const paybackMonth = Math.max(1, Math.ceil(paybackValue));
+        const investimentoInicial = parseFloat(data.investimentoInicial) || 0;
+        const retornoAnual = parseFloat(data.retornoAnual) || 0;
+        // Receita mensal estimada: preferir Investimento/Payback (se ambos informados); senão Retorno Anual/12; senão 1
+        let receitaMensal = 1;
+        if (investimentoInicial > 0 && paybackValue > 0) receitaMensal = investimentoInicial / paybackValue;
+        else if (retornoAnual > 0) receitaMensal = retornoAnual / 12;
+
+        // Configuração de layout
+        const W = paybackCanvas.width;
+        const H = paybackCanvas.height;
+        ctx.clearRect(0, 0, W, H);
+        const margin = { top: 24, right: 20, bottom: 36, left: 28 };
+        const plotW = W - margin.left - margin.right;
+        const plotH = H - margin.top - margin.bottom;
+
+        // Quantidade de meses mostrados: pelo menos 12, no máximo 36, e sempre mostrar 6 meses após payback
+        const monthsToShow = Math.min(36, Math.max(12, paybackMonth + 6));
+        const gap = 4;
+        const barW = Math.max(2, Math.floor((plotW - gap * (monthsToShow - 1)) / monthsToShow));
+        const maxBarValue = receitaMensal; // todas barras iguais em altura de receita
+        const scaleY = maxBarValue > 0 ? (plotH / maxBarValue) : 0;
+
+        // Eixos simples
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, H - margin.bottom);
+        ctx.lineTo(W - margin.right, H - margin.bottom);
+        ctx.stroke();
+
+        // Desenhar barras
+        for (let m = 1; m <= monthsToShow; m++) {
+          const x = margin.left + (m - 1) * (barW + gap);
+          const barH = receitaMensal * scaleY;
+          const y = H - margin.bottom - barH;
+          // Cores: destaque no mês do payback; antes do payback uma cor; depois outra
+          if (m === paybackMonth) {
+            ctx.fillStyle = '#3b82f6'; // destaque
+          } else if (m < paybackMonth) {
+            ctx.fillStyle = '#22c55e';
+          } else {
+            ctx.fillStyle = '#6b7280';
+          }
+          ctx.fillRect(x, y, barW, barH);
+        }
+
+        // Marcador e rótulo do payback
+        const pbX = margin.left + (paybackMonth - 1) * (barW + gap) + barW / 2;
+        ctx.strokeStyle = '#3b82f6';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(pbX, margin.top);
+        ctx.lineTo(pbX, H - margin.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Rótulos
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = 'bold 12px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('M' + paybackMonth + ' Payback', pbX, margin.top - 6);
+
+        // Alguns marcadores no eixo X (1, payback, último)
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px Inter';
+        const labelY = H - margin.bottom + 14;
+        ctx.fillText('M1', margin.left + barW / 2, labelY);
+        ctx.fillText('M' + paybackMonth, pbX, labelY);
+        ctx.fillText('M' + monthsToShow, margin.left + (monthsToShow - 1) * (barW + gap) + barW / 2, labelY);
+      }
+
+      // Gráfico Diário Oficial em Números - Comparativo por Caderno
+      const doeNumerosCanvas = document.getElementById('doeNumerosChart');
+      if (doeNumerosCanvas && (data.qtdPedidosEmpresarial || data.faturamentoEmpresarial || data.qtdPedidosExecutivo || data.faturamentoExecutivo || data.qtdPedidosMunicipios || data.faturamentoMunicipios)) {
+        const ctx = doeNumerosCanvas.getContext('2d');
+        const W = doeNumerosCanvas.width;
+        const H = doeNumerosCanvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const qtdEmpresarial = parseFloat(data.qtdPedidosEmpresarial) || 0;
+        const fatEmpresarial = parseFloat(data.faturamentoEmpresarial) || 0;
+        const qtdExecutivo = parseFloat(data.qtdPedidosExecutivo) || 0;
+        const fatExecutivo = parseFloat(data.faturamentoExecutivo) || 0;
+        const qtdMunicipios = parseFloat(data.qtdPedidosMunicipios) || 0;
+        const fatMunicipios = parseFloat(data.faturamentoMunicipios) || 0;
+
+        const margin = { top: 40, right: 30, bottom: 60, left: 60 };
+        const plotW = W - margin.left - margin.right;
+        const plotH = H - margin.top - margin.bottom;
+
+        // Fundo
+        ctx.fillStyle = '#0f1a33';
+        ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+        // Dados para o gráfico (faturamento por caderno)
+        const cadernos = [
+          { nome: 'Empresarial', faturamento: fatEmpresarial, pedidos: qtdEmpresarial, cor: '#22c55e' },
+          { nome: 'Executivo', faturamento: fatExecutivo, pedidos: qtdExecutivo, cor: '#60a5fa' },
+          { nome: 'Municípios', faturamento: fatMunicipios, pedidos: qtdMunicipios, cor: '#f59e0b' }
+        ];
+
+        const maxFaturamento = Math.max(...cadernos.map(c => c.faturamento)) * 1.1;
+        const scaleY = plotH / maxFaturamento;
+        const barW = plotW / 6;
+        const gap = barW / 2;
+
+        // Eixos
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, H - margin.bottom);
+        ctx.lineTo(W - margin.right, H - margin.bottom);
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, H - margin.bottom);
+        ctx.stroke();
+
+        // Desenhar barras
+        cadernos.forEach((caderno, i) => {
+          const x = margin.left + i * (barW + gap) + gap;
+          const barH = caderno.faturamento * scaleY;
+          const y = H - margin.bottom - barH;
+          
+          // Barra de faturamento
+          ctx.fillStyle = caderno.cor;
+          ctx.fillRect(x, y, barW, barH);
+
+          // Rótulos
+          ctx.fillStyle = '#e5e7eb';
+          ctx.font = 'bold 12px Inter';
+          ctx.textAlign = 'center';
+          ctx.fillText(caderno.nome, x + barW / 2, H - margin.bottom + 20);
+          ctx.fillText('R$ ' + caderno.faturamento.toLocaleString('pt-BR'), x + barW / 2, y - 8);
+          ctx.font = '10px Inter';
+          ctx.fillText(caderno.pedidos + ' pedidos', x + barW / 2, y - 24);
+        });
+
+        // Título
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = 'bold 16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Faturamento por Caderno (R$)', W / 2, margin.top - 10);
+      }
+    }
+
+    function escapeHtml(s) {
+      return (s || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    // Aplica formatação inline: **negrito**, *itálico* ou _itálico_, ^^nota^^ (fonte reduzida)
+    function applyInlineFormatting(html) {
+      // Já está com entidades escapadas; podemos aplicar substituições seguras
+      // Negrito
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // Itálico com * e _
+      html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+      html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+      // Nota com fonte reduzida
+      html = html.replace(/\^\^(.+?)\^\^/g, '<span class="note">$1</span>');
+      return html;
+    }
+
+    function switchMode(mode) {
+      const editor = document.getElementById('editor');
+      const apresentacao = document.getElementById('presentacao');
+      if (mode === 'edit') {
+        editor.style.display = '';
+        apresentacao.classList.remove('active');
+      } else {
+        editor.style.display = 'none';
+        apresentacao.classList.add('active');
+      }
+    }
+
+    function exportJson() {
+      const data = getDataFromForm();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'business-case-doe-sp.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function importJson(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            const data = { ...defaultData(), ...parsed };
+            writeData(data);
+            setFormFromData(data);
+            renderSlides(data);
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    }
+
+    function clearAll() {
+      if (!confirm('Limpar todos os dados do business case?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      const data = defaultData();
+      setFormFromData(data);
+      renderSlides(data);
+    }
+
+    function parseFases(fasesText) {
+      const lines = asBullets(fasesText);
+      return lines.map(raw => {
+        let state = 'future';
+        let s = raw.trim();
+        if (s.startsWith('[x]')) { state = 'completed'; s = s.slice(3).trim(); }
+        else if (s.startsWith('[>]')) { state = 'current'; s = s.slice(3).trim(); }
+        const [labelPart, datePart] = s.split('|').map(p => (p||'').trim());
+        return { label: labelPart || s, date: datePart || '', state };
+      });
+    }
+
+    function renderTimelineEditor(data) {
+      const nodesHost = document.getElementById('timelineNodes');
+      const labelsHost = document.getElementById('timelineLabels');
+      if (!nodesHost || !labelsHost) return;
+      const parsed = parseFases(data.fasesText);
+      const num = Math.max(2, parsed.length);
+      nodesHost.style.gridTemplateColumns = `repeat(${num * 2 - 1}, 1fr)`;
+      labelsHost.style.gridTemplateColumns = `repeat(${num}, 1fr)`;
+      nodesHost.innerHTML = parsed.map((f,i)=>{
+        const prev = parsed[i-1];
+        let connCls = 'timeline-connector';
+        if (i>0 && prev && prev.state !== 'future' && (f.state === 'completed' || f.state === 'current')) {
+          connCls += ' completed';
+        }
+        const nodeCls = `timeline-node ${i===0?'is-start':''} ${i===num-1?'is-end':''} ${f.state==='completed'?'completed':''} ${f.state==='current'?'current':''}`;
+        return `${i>0?`<div class="${connCls}"></div>`:''}<div class="${nodeCls}"></div>`;
+      }).join('');
+      labelsHost.innerHTML = parsed.map(f=>`<div>${escapeHtml(f.label)}${f.date?`<div class="hint">${escapeHtml(f.date)}</div>`:''}</div>`).join('');
+    }
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    async function tryLoadFromDataJsonIfEmpty() {
+      try {
+        const forceSeed = getQueryParam('seed');
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw && !forceSeed) return null;
+        const resp = await fetch('./data.json', { cache: 'no-store' });
+        if (!resp.ok) return null;
+        const json = await resp.json();
+        const data = { ...defaultData(), ...json };
+        writeData(data);
+        if (forceSeed) {
+          try {
+            const header = document.querySelector('header .toolbar-left');
+            if (header) {
+              const note = document.createElement('span');
+              note.className = 'hint';
+              note.style.marginLeft = '8px';
+              note.textContent = 'Dados carregados de data.json';
+              header.appendChild(note);
+            }
+          } catch (_) { /* ignore */ }
+        }
+        return data;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function init() {
+      let data = readData();
+      const maybe = await tryLoadFromDataJsonIfEmpty();
+      if (maybe) data = maybe;
+      setFormFromData(data);
+      renderSlides(data);
+      renderTimelineEditor(data);
+
+      for (const field of fields) {
+        const el = document.querySelector(`[data-field="${field}"]`);
+        if (!el) continue;
+        el.addEventListener('input', () => {
+          const updated = getDataFromForm();
+          writeData(updated);
+          renderTimelineEditor(updated);
+        });
+      }
+
+      document.getElementById('btnSalvar').onclick = () => {
+        writeData(getDataFromForm());
+        alert('Dados salvos!');
+      };
+      document.getElementById('btnApresentar').onclick = () => {
+        const data = getDataFromForm();
+        writeData(data);
+        renderSlides(data);
+        switchMode('present');
+      };
+      document.getElementById('btnEditar').onclick = () => switchMode('edit');
+      document.getElementById('btnImprimir').onclick = () => window.print();
+      document.getElementById('btnExportar').onclick = exportJson;
+      document.getElementById('btnLimpar').onclick = clearAll;
+      document.getElementById('inputImportar').onchange = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        try {
+          await importJson(file);
+          alert('Dados importados com sucesso!');
+          e.target.value = '';
+        } catch (err) {
+          alert('Falha ao importar JSON. Verifique o arquivo.');
+          console.error(err);
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { init(); });
+  </script>
+</body>
+</html>
+
+
